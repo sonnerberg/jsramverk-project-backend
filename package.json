@@ -1,10 +1,12 @@
 {
   "name": "jsramverk-project-backend",
   "version": "1.0.0",
-  "description": "This will be the backend for the project during the course jsramverk (https://jsramverk.se/).",
+  "description": "This is be the backend for the project during the course jsramverk (https://jsramverk.se/).",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint \"src/**/*.js\""
   },
   "keywords": [
     "javascript",
@@ -12,5 +14,27 @@
     "graphql"
   ],
   "author": "Richard Sönnerberg",
-  "license": "ISC"
+  "license": "ISC",
+  "nodemonConfig": {
+    "ignore": [
+      "**.test.js"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^7.11.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "prettier": "^2.1.2"
+  },
+  "dependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonnerberg/jsramverk-project-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sonnerberg/jsramverk-project-backend/issues"
+  },
+  "homepage": "https://github.com/sonnerberg/jsramverk-project-backend#readme"
 }
