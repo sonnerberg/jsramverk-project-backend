@@ -1,0 +1,16 @@
+{
+  "name": "jsramverk-project-backend",
+  "version": "1.0.0",
+  "description": "This will be the backend for the project during the course jsramverk (https://jsramverk.se/).",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "express",
+    "graphql"
+  ],
+  "author": "Richard Sönnerberg",
+  "license": "ISC"
+}
