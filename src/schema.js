@@ -1,11 +1,13 @@
 const { gql } = require('apollo-server-express')
 
-// TODO: Add depot/s to each user
-
 module.exports = gql`
+  scalar DateTime
+
   type Query {
     user(username: String!): User
     users: [User!]!
+    me: User!
+    balance: Int!
   }
   type User {
     id: ID!
@@ -17,5 +19,6 @@ module.exports = gql`
   type Mutation {
     signUp(username: String!, email: String!, password: String!): String!
     signIn(username: String, email: String, password: String!): String!
+    addFunds(amount: Int!): Int!
   }
 `

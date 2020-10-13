@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express')
 const { ApolloServer } = require('apollo-server-express')
+const jwt = require('jsonwebtoken')
+const cors = require('cors')
 // eslint-disable-next-line no-unused-vars
 const colors = require('colors')
 
@@ -15,11 +17,27 @@ const DB_HOST = process.env.DB_HOST
 const app = express()
 db.connect(DB_HOST)
 
+app.use(cors())
+
+const getUser = (token) => {
+  if (token) {
+    try {
+      return jwt.verify(token, process.env.JWT_SECRET)
+    } catch (err) {
+      throw new Error('Session invalid')
+    }
+  }
+}
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: () => {
-    return { models }
+  context: async ({ req }) => {
+    const token = req.headers.authorization
+
+    const user = getUser(token)
+
+    return { models, user }
   },
 })
 

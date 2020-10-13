@@ -4,10 +4,12 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {
   AuthenticationError /* ForbiddenError */,
+  ForbiddenError,
 } = require('apollo-server-express')
 require('dotenv').config()
 
 const gravatar = require('../util/gravatar')
+const mongoose = require('mongoose')
 
 module.exports = {
   signUp: async (parent, { username, email, password }, { models }) => {
@@ -25,6 +27,10 @@ module.exports = {
         email,
         avatar,
         password: hashed,
+      })
+
+      await models.Account.create({
+        owner: mongoose.Types.ObjectId(user._id),
       })
 
       return jwt.sign({ id: user._id }, process.env.JWT_SECRET)
@@ -48,5 +54,23 @@ module.exports = {
     if (!valid) throw new AuthenticationError('Error signing in')
 
     return jwt.sign({ id: user.id }, process.env.JWT_SECRET)
+  },
+  addFunds: async (parent, { amount }, { models, user }) => {
+    // TODO: Convert to transaction (if multiple additions of funds)
+
+    if (!user) throw new AuthenticationError('Error signing in')
+
+    if (amount > 0) {
+      const account = await models.Account.findOne({ owner: user.id })
+
+      const newBalance = account.balance + amount
+
+      await account.updateOne({
+        balance: newBalance,
+      })
+
+      return newBalance
+    }
+    throw new ForbiddenError('Must use positive number')
   },
 }

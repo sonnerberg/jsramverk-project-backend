@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 
+// TODO: Use [yoitsro/joigoose: Joi validation for your Mongoose models without the hassle of maintaining two schemas](https://github.com/yoitsro/joigoose)
+// for validation
+
 const UserSchema = new mongoose.Schema(
   {
     username: {
