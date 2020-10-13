@@ -1,32 +1,22 @@
 const mongoose = require('mongoose')
+const joigoose = require('joigoose')(mongoose)
+const Joi = require('joi')
 
-// TODO: Use [yoitsro/joigoose: Joi validation for your Mongoose models without the hassle of maintaining two schemas](https://github.com/yoitsro/joigoose)
-// for validation
+const joiUserSchema = Joi.object({
+  username: Joi.string()
+    .required()
+    .meta({ _mongoose: { index: { unique: true } } }),
+  email: Joi.string()
+    .email()
+    .required()
+    .meta({ _mongoose: { index: { unique: true } } }),
+  password: Joi.string().required(),
+  avatar: Joi.string(),
+})
 
-const UserSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      index: { unique: true },
-    },
-    email: {
-      type: String,
-      required: true,
-      index: { unique: true },
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    avatar: {
-      type: String,
-    },
-  },
-  {
-    timestamps: true,
-  }
-)
+const UserSchema = new mongoose.Schema(joigoose.convert(joiUserSchema), {
+  timestamps: true,
+})
 
 const User = mongoose.model('User', UserSchema)
 module.exports = User
