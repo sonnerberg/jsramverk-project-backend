@@ -60,17 +60,16 @@ module.exports = {
 
     if (!user) throw new AuthenticationError('Error signing in')
 
-    if (amount > 0) {
-      const account = await models.Account.findOne({ owner: user.id })
+    if (amount < 0) throw new ForbiddenError('Must use positive number')
 
-      const newBalance = account.balance + amount
+    const account = await models.Account.findOne({ owner: user.id })
 
-      await account.updateOne({
-        balance: newBalance,
-      })
+    const newBalance = account.balance + amount
 
-      return newBalance
-    }
-    throw new ForbiddenError('Must use positive number')
+    await account.updateOne({
+      balance: newBalance,
+    })
+
+    return newBalance
   },
 }
