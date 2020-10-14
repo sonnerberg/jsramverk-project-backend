@@ -4,6 +4,7 @@ const AccountSchema = new mongoose.Schema(
   {
     balance: {
       type: Number,
+      min: 0,
       default: 0,
     },
     owner: {
