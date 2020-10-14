@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express')
+const helmet = require('helmet')
 const { ApolloServer } = require('apollo-server-express')
 const jwt = require('jsonwebtoken')
 const cors = require('cors')
@@ -15,9 +16,10 @@ const port = process.env.PORT || 8888
 const DB_HOST = process.env.DB_HOST
 
 const app = express()
-db.connect(DB_HOST)
-
+app.use(helmet())
+// TODO: limit requests to certain origins using cors
 app.use(cors())
+db.connect(DB_HOST)
 
 const getUser = (token) => {
   if (token) {
@@ -47,9 +49,11 @@ app.get('/', (request, response) => {
   response.send('hello world!')
 })
 
-app.listen({ port }, () =>
+const application = app.listen({ port }, () =>
   console.log(
     `GraphQL Server running at http://localhost:${port}${server.graphqlPath}`
       .underline.green
   )
 )
+
+module.exports = application
