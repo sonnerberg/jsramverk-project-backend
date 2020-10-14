@@ -4,10 +4,13 @@ const Joi = require('joi')
 
 const joiUserSchema = Joi.object({
   username: Joi.string()
+    .min(5)
     .required()
+    .trim()
     .meta({ _mongoose: { index: { unique: true } } }),
   email: Joi.string()
     .email()
+    .trim()
     .required()
     .meta({ _mongoose: { index: { unique: true } } }),
   password: Joi.string().required(),

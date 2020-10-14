@@ -13,6 +13,9 @@ const mongoose = require('mongoose')
 
 module.exports = {
   signUp: async (parent, { username, email, password }, { models }) => {
+    if (password.length < 5)
+      throw new Error('Password needs to be at least five characters')
+
     email = email.trim().toLowerCase()
 
     const saltRounds = 10
