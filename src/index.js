@@ -13,7 +13,8 @@ const typeDefs = require('./schema')
 const resolvers = require('./resolvers')
 
 const port = process.env.PORT || 8888
-const DB_HOST = process.env.DB_HOST
+const DB_HOST =
+  process.env.NODE_ENV === 'test' ? process.env.TEST_DB : process.env.DB_HOST
 
 const app = express()
 app.use(helmet())
