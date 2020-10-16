@@ -148,7 +148,6 @@ describe('Register twice', function () {
         .post('/api')
         .send(signUpQuery)
         .end((err, res) => {
-          res.should.exist
           expect(res.status).to.be.equal(200)
           res.body.should.be.an('object')
           res.body.should.have.property('data')
@@ -177,7 +176,6 @@ describe('Register twice', function () {
         .post('/api')
         .send(signUpQuery)
         .end((err, res) => {
-          res.should.exist
           expect(res.status).to.be.equal(200)
           res.body.errors.should.be.an('array')
 
@@ -197,7 +195,6 @@ describe('Register twice', function () {
         .post('/api')
         .send(signUpQueryWithShortPassword)
         .end((err, res) => {
-          res.should.exist
           expect(res.status).to.be.equal(200)
           res.body.errors.should.be.an('array')
 
