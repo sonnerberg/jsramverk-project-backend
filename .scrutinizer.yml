@@ -1,0 +1,18 @@
+build:
+  environment:
+    node: v13.9.0
+  nodes:
+    analysis:
+      project_setup:
+        override: true
+      tests:
+        override: [js-scrutinizer-run]
+    coverage:
+      services:
+        mongo: 4.4.1
+      tests:
+        override:
+          - command: npm test
+            coverage:
+              file: coverage/clover.xml
+              format: clover
