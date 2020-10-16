@@ -16,14 +16,14 @@ module.exports = {
     // Connect to the DB
     mongoose.connect(DB_HOST)
     // Log an error if we fail to connect
-    mongoose.connection.on('error', (err) => {
-      console.error(err)
-      console.log(
-        'MongoDB connection error. Please make sure MongoDB is running.'.red
-          .bold
-      )
-      process.exit()
-    })
+    // mongoose.connection.on('error', (err) => {
+    //   console.error(err)
+    //   console.log(
+    //     'MongoDB connection error. Please make sure MongoDB is running.'.red
+    //       .bold
+    //   )
+    //   process.exit()
+    // })
   },
 
   close: () => {

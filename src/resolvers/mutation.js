@@ -38,7 +38,7 @@ module.exports = {
 
       return jwt.sign({ id: user._id }, process.env.JWT_SECRET)
     } catch (err) {
-      console.log(err)
+      // console.log(err)
 
       throw new Error('Error creating account')
     }
@@ -60,8 +60,6 @@ module.exports = {
   },
   addFunds: async (parent, { amount }, { models, user }) => {
     // TODO: Convert to transaction (if multiple additions of funds)
-
-    if (!user) throw new AuthenticationError('Error signing in')
 
     if (amount < 0) throw new ForbiddenError('Must use positive number')
 

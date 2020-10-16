@@ -1,6 +1,6 @@
 require('dotenv').config()
 const express = require('express')
-const helmet = require('helmet')
+// const helmet = require('helmet')
 const { ApolloServer } = require('apollo-server-express')
 const jwt = require('jsonwebtoken')
 const cors = require('cors')
@@ -17,7 +17,7 @@ const DB_HOST =
   process.env.NODE_ENV === 'test' ? process.env.TEST_DB : process.env.DB_HOST
 
 const app = express()
-app.use(helmet())
+// app.use(helmet())
 // TODO: limit requests to certain origins using cors
 app.use(cors())
 db.connect(DB_HOST)
@@ -45,10 +45,6 @@ const server = new ApolloServer({
 })
 
 server.applyMiddleware({ app, path: '/api' })
-
-app.get('/', (request, response) => {
-  response.send('hello world!')
-})
 
 const application = app.listen({ port }, () =>
   console.log(
