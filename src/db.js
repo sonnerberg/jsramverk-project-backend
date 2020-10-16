@@ -1,7 +1,7 @@
 // Require the mongose library
 const mongoose = require('mongoose')
 // eslint-disable-next-line no-unused-vars
-const colors = require('colors')
+// const colors = require('colors')
 
 module.exports = {
   connect: (DB_HOST) => {
