@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "nodemon src/index.js",
-    "test": "nyc --reporter=html --reporter=text mocha 'test/**/*.js' --timeout 10000",
+    "test": "nyc --reporter=html --reporter=text --reporter=clover mocha 'test/**/*.js' --timeout 10000",
     "lint": "eslint \"src/**/*.js\"",
     "pretest": "bash bash_scripts/reset_test_db.bash"
   },
