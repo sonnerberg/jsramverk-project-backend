@@ -15,6 +15,7 @@ const resolvers = require('./resolvers')
 const pubsub = new PubSub()
 
 const stock = require('./util/stock')
+const { cakes } = require('./util/cakes')
 
 const port = process.env.PORT || 8888
 const DB_HOST =
@@ -35,22 +36,6 @@ const getUser = (token) => {
     }
   }
 }
-
-const princessTarta = {
-  name: 'Princesstårta',
-  rate: 1.002,
-  variance: 0.6,
-  startingPoint: 20,
-}
-
-const mandelKubb = {
-  name: 'Mandel kubb',
-  rate: 1.001,
-  variance: 0.4,
-  startingPoint: 20,
-}
-
-var cakes = [princessTarta, mandelKubb]
 
 const interval = setInterval(function () {
   cakes.map((cake) => {
