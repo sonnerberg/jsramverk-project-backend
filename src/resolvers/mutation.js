@@ -12,7 +12,7 @@ const gravatar = require('../util/gravatar')
 const mongoose = require('mongoose')
 
 module.exports = {
-  signUp: async (parent, { username, email, password }, { models }) => {
+  signUp: async (parent, { username, email, password }, { models, pubsub }) => {
     if (password.length < 5)
       throw new Error('Password needs to be at least five characters')
 
@@ -35,6 +35,8 @@ module.exports = {
       await models.Account.create({
         owner: mongoose.Types.ObjectId(user._id),
       })
+
+      pubsub.publish('PERSON_ADDED', { personAdded: username })
 
       return jwt.sign({ id: user._id }, process.env.JWT_SECRET)
     } catch (err) {

@@ -16,9 +16,21 @@ module.exports = gql`
     avatar: String
   }
 
+  type Stock {
+    name: String!
+    rate: Float!
+    variance: Float!
+    startingPoint: Float!
+  }
+
   type Mutation {
     signUp(username: String!, email: String!, password: String!): String!
     signIn(username: String, email: String, password: String!): String!
     addFunds(amount: Int!): Int!
+  }
+
+  type Subscription {
+    personAdded: String!
+    stocksUpdated: [Stock!]!
   }
 `

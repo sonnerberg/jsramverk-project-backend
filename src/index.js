@@ -1,7 +1,8 @@
 require('dotenv').config()
+const http = require('http')
 const express = require('express')
 // const helmet = require('helmet')
-const { ApolloServer } = require('apollo-server-express')
+const { ApolloServer, PubSub } = require('apollo-server-express')
 const jwt = require('jsonwebtoken')
 const cors = require('cors')
 // eslint-disable-next-line no-unused-vars
@@ -11,6 +12,9 @@ const db = require('./db')
 const models = require('./models')
 const typeDefs = require('./schema')
 const resolvers = require('./resolvers')
+const pubsub = new PubSub()
+
+const stock = require('./util/stock')
 
 const port = process.env.PORT || 8888
 const DB_HOST =
@@ -32,25 +36,60 @@ const getUser = (token) => {
   }
 }
 
+const princessTarta = {
+  name: 'Princesstårta',
+  rate: 1.002,
+  variance: 0.6,
+  startingPoint: 20,
+}
+
+const mandelKubb = {
+  name: 'Mandel kubb',
+  rate: 1.001,
+  variance: 0.4,
+  startingPoint: 20,
+}
+
+var cakes = [princessTarta, mandelKubb]
+
+const interval = setInterval(function () {
+  cakes.map((cake) => {
+    cake['startingPoint'] = stock.getStockPrice(cake)
+    return cake
+  })
+
+  pubsub.publish('STOCKS_UPDATED', { stocksUpdated: cakes })
+}, 5000)
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }) => {
+  context: async ({ req, connection }) => {
+    if (connection) return { pubsub }
+
     const token = req.headers.authorization
 
     const user = getUser(token)
 
-    return { models, user }
+    return { models, user, pubsub }
   },
+  subscriptions: { path: '/subscription' },
 })
 
 server.applyMiddleware({ app, path: '/api' })
 
-const application = app.listen({ port }, () =>
+const httpServer = http.createServer(app)
+server.installSubscriptionHandlers(httpServer)
+
+const application = httpServer.listen(port, () => {
   console.log(
-    `GraphQL Server running at http://localhost:${port}${server.graphqlPath}`
+    `🚀 Server ready at http://localhost:${port}${server.graphqlPath}`.underline
+      .green
+  )
+  console.log(
+    `🚀 Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
       .underline.green
   )
-)
+})
 
-module.exports = application
+module.exports = { application, interval }

@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test'
 const chai = require('chai')
 const chaiHttp = require('chai-http')
-const server = require('../src/index')
+const { application, interval } = require('../src/index')
 const assert = require('assert')
 const { expect } = require('chai')
 const db = require('../src/db')
@@ -129,7 +129,7 @@ describe('Register twice', function () {
   describe('When no users are registered', function () {
     it('database is empty', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send({ query: '{ users { id } }' })
         .end((err, res) => {
@@ -144,7 +144,7 @@ describe('Register twice', function () {
 
     it('register user', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(signUpQuery)
         .end((err, res) => {
@@ -159,7 +159,7 @@ describe('Register twice', function () {
 
     it('user in database', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(usersQuery)
         .end((err, res) => {
@@ -172,7 +172,7 @@ describe('Register twice', function () {
 
     it('register user again', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(signUpQuery)
         .end((err, res) => {
@@ -191,7 +191,7 @@ describe('Register twice', function () {
         password: '123',
       }
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(signUpQueryWithShortPassword)
         .end((err, res) => {
@@ -204,7 +204,7 @@ describe('Register twice', function () {
 
     it('database has one entry', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send({ query: '{ users { id } }' })
         .end((err, res) => {
@@ -225,7 +225,7 @@ describe('Register twice', function () {
         password: '12345',
       }
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(signInWithWrongUsername)
         .end((err, res) => {
@@ -243,7 +243,7 @@ describe('Register twice', function () {
         password: '12345',
       }
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(signInWithWrongPassword)
         .end((err, res) => {
@@ -256,7 +256,7 @@ describe('Register twice', function () {
 
     it('user can login with username', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(loginQueryUsername)
         .end((err, res) => {
@@ -272,7 +272,7 @@ describe('Register twice', function () {
 
     it('user can login with email', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(loginQueryEmail)
         .end((err, res) => {
@@ -287,7 +287,7 @@ describe('Register twice', function () {
 
     it('get details about myself', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set('Authorization', token)
         .send(meQuery)
@@ -307,7 +307,7 @@ describe('Register twice', function () {
 
     it('check balance in account', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set('Authorization', token)
         .send(balanceQuery)
@@ -324,7 +324,7 @@ describe('Register twice', function () {
 
     it('check balance in account without token', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .send(balanceQuery)
         .end((err, res) => {
@@ -337,7 +337,7 @@ describe('Register twice', function () {
 
     it('check balance in account with malformed token', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set(
           'Authorization',
@@ -354,7 +354,7 @@ describe('Register twice', function () {
 
     it('add funds to account', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set('Authorization', token)
         .send(addFundsQuery)
@@ -371,7 +371,7 @@ describe('Register twice', function () {
 
     it('check balance in account after adding funds', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set('Authorization', token)
         .send(balanceQuery)
@@ -392,7 +392,7 @@ describe('Register twice', function () {
         amount: -1,
       }
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set('Authorization', token)
         .send(addNegativeFundsQuery)
@@ -406,7 +406,7 @@ describe('Register twice', function () {
 
     it('add funds to account with malformed token', function (done) {
       chai
-        .request(server)
+        .request(application)
         .post('/api')
         .set(
           'Authorization',
@@ -425,5 +425,6 @@ describe('Register twice', function () {
 
 after(async function (done) {
   db.close()
+  clearInterval(interval)
   done()
 })
