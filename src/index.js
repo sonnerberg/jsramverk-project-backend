@@ -15,7 +15,6 @@ const resolvers = require('./resolvers')
 const pubsub = new PubSub()
 
 const stock = require('./util/stock')
-const { cakes } = require('./util/cakes')
 
 const port = process.env.PORT || 8888
 const DB_HOST =
@@ -37,7 +36,8 @@ const getUser = (token) => {
   }
 }
 
-const interval = setInterval(function () {
+const interval = setInterval(async () => {
+  const cakes = await models.Stock.find({})
   cakes.map((cake) => {
     cake['startingPoint'] = stock.getStockPrice(cake)
     return cake

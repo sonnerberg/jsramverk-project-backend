@@ -7,7 +7,9 @@
     "start": "nodemon src/index.js",
     "test": "nyc --reporter=html --reporter=text --reporter=clover mocha 'test/**/*.js' --timeout 10000",
     "lint": "eslint \"src/**/*.js\"",
-    "pretest": "bash bash_scripts/reset_test_db.bash"
+    "pretest": "bash bash_scripts/reset_test_db.bash && npm run seed:test",
+    "seed": "node src/util/seed/index.js",
+    "seed:test": "NODE_ENV=test node src/util/seed/index.js"
   },
   "keywords": [
     "javascript",
