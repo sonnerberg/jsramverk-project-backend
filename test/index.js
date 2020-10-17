@@ -386,7 +386,7 @@ describe('Register twice', function () {
         })
     })
 
-    it('add funds to account', function (done) {
+    it('add negative funds to account', function (done) {
       const addNegativeFundsQuery = Object.assign({}, addFundsQuery)
       addNegativeFundsQuery.variables = {
         amount: -1,
