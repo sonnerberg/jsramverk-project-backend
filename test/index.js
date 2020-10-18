@@ -559,7 +559,7 @@ describe('Register twice', function () {
         })
     })
 
-    it('get current prices', function (done) {
+    it.skip('get current prices', function (done) {
       chai
         .request(application)
         .post('/api')
@@ -579,7 +579,7 @@ describe('Register twice', function () {
         })
     })
 
-    it('get historic prices', function (done) {
+    it.skip('get historic prices', function (done) {
       chai
         .request(application)
         .post('/api')
