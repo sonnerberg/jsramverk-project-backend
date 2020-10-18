@@ -6,7 +6,17 @@ const AccountSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       default: 0,
+      required: true,
     },
+    stocks: [
+      {
+        name: String,
+        amount: {
+          type: Number,
+          min: 0,
+        },
+      },
+    ],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

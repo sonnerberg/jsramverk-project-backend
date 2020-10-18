@@ -42,6 +42,16 @@ const interval = setInterval(async () => {
     cake['startingPoint'] = stock.getStockPrice(cake)
     return cake
   })
+  for (const cake of cakes) {
+    await models.Stock.updateOne(
+      { _id: cake._id },
+      { startingPoint: cake.startingPoint }
+    )
+  }
+  const history = cakes.map((cake) => {
+    return { name: cake.name, value: cake.startingPoint }
+  })
+  await models.StockHistory.create({ history: history })
 
   pubsub.publish('STOCKS_UPDATED', { stocksUpdated: cakes })
 }, 5000)

@@ -75,4 +75,84 @@ module.exports = {
 
     return newBalance
   },
+  buyStock: async (parent, { stock, amount }, { models, user }) => {
+    // Check that the stock exists
+    const stocks = await models.Stock.find({})
+
+    const stockExists = stocks.find((item) => item.name === stock)
+
+    if (!stockExists) throw new ForbiddenError('Stock does not exist')
+
+    const account = await models.Account.findOne({ owner: user.id })
+
+    const price = stockExists.startingPoint
+
+    const sum = amount * price
+
+    if (sum > account.balance) throw new ForbiddenError('Insufficient funds')
+
+    await account.updateOne({ balance: account.balance - sum })
+
+    // Check if user already owns the stock about to be purchased
+    const stockOwned = account.stocks.find((item) => item.name === stock)
+
+    if (!stockOwned) {
+      const newStock = { name: stock, amount: amount }
+
+      await account.updateOne({
+        $push: { stocks: newStock },
+      })
+
+      return newStock
+    }
+
+    const newAmount = stockOwned.amount + amount
+
+    await models.Account.findOneAndUpdate(
+      { owner: user.id, 'stocks._id': stockOwned._id },
+      { $set: { 'stocks.$.amount': newAmount } }
+    )
+
+    return { name: stockOwned.name, amount: newAmount }
+  },
+  sellStock: async (parent, { stock, amount }, { models, user }) => {
+    // Check that the stock exists
+    const stocks = await models.Stock.find({})
+
+    const stockExists = stocks.find((item) => item.name === stock)
+
+    if (!stockExists) throw new ForbiddenError('Stock does not exist')
+
+    const account = await models.Account.findOne({ owner: user.id })
+
+    // Check if user already owns the stock about to be sold
+    const stockOwned = account.stocks.find((item) => item.name === stock)
+
+    if (!stockOwned) throw new ForbiddenError('Stock not owned')
+
+    if (stockOwned.amount < amount) throw new ForbiddenError('Not enough stock')
+
+    const price = stockExists.startingPoint
+
+    const sum = amount * price
+
+    await account.updateOne({ balance: account.balance + sum })
+
+    const newAmount = stockOwned.amount - amount
+
+    if (newAmount === 0) {
+      const doc = await models.Account.findOne({ owner: user.id })
+      doc.stocks.pull(stockOwned._id)
+      await doc.save()
+
+      return { name: stockOwned.name, amount: newAmount }
+    }
+
+    await models.Account.findOneAndUpdate(
+      { owner: user.id, 'stocks._id': stockOwned._id },
+      { $set: { 'stocks.$.amount': newAmount } }
+    )
+
+    return { name: stockOwned.name, amount: newAmount }
+  },
 }

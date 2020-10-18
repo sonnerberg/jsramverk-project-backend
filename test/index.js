@@ -11,6 +11,7 @@ chai.should()
 
 chai.use(chaiHttp)
 let token
+let stock
 const username = 'mochatest'
 const email = 'mocha@test.com'
 const password = '123456789'
@@ -85,7 +86,7 @@ const addFundsQuery = {
             )
           }`,
   variables: {
-    amount: 100,
+    amount: 9999,
   },
 }
 
@@ -123,6 +124,123 @@ const loginQueryUsername = {
     username,
     password,
   },
+}
+
+const signUpQueryWithShortPassword = Object.assign({}, signUpQuery)
+signUpQueryWithShortPassword.variables = {
+  username: 'iHaveShortPassword',
+  email: 'iHaveShortPassword@test.com',
+  password: '123',
+}
+
+const signInWithWrongUsername = Object.assign({}, loginQueryUsername)
+signInWithWrongUsername.variables = {
+  username: 'iHaveShortPassword',
+  email: 'iHaveShortPassword@test.com',
+  password: '12345',
+}
+
+const signInWithWrongPassword = Object.assign({}, loginQueryUsername)
+signInWithWrongPassword.variables = {
+  username,
+  password: '12345',
+}
+
+const addNegativeFundsQuery = Object.assign({}, addFundsQuery)
+addNegativeFundsQuery.variables = {
+  amount: -1,
+}
+
+const getMyStocks = {
+  operationName: null,
+  query: `query
+    myStocks {
+        myStocks {
+            name
+            amount
+          }
+  }`,
+  variables: null,
+}
+
+const getStocks = {
+  operationName: null,
+  query: `query
+  allStocks {
+      stocks {
+          name
+          startingPoint
+        }
+  }`,
+  variables: null,
+}
+
+const getPriceOfStocks = {
+  operationName: null,
+  query: `query
+priceNow {
+        priceNow {
+    createdAt
+    updatedAt
+    history {
+      name
+      value
+    }
+  }}`,
+  variables: null,
+}
+
+const getPriceHistoryNoLimit = {
+  operationName: null,
+  query: `query stockHistory($limit: Int) {
+  stockHistory(limit: $limit) {
+    createdAt
+    updatedAt
+    	history {
+        name
+        value
+      }
+  }
+}`,
+  variables: null,
+}
+
+const buyStock = {
+  operationName: null,
+  query: `mutation
+    buyStock(
+      $stock: String!,
+      $amount: Float!
+      )
+          {
+            buyStock(
+            stock: $stock
+            amount: $amount
+            ) {
+              name
+              amount
+            }
+          }`,
+  variables: null,
+}
+
+const sellStock = {
+  operationName: null,
+  query: `mutation
+    sellStock(
+      $stock: String!,
+      $amount: Float!
+      )
+          {
+            sellStock(
+            stock: $stock
+            amount: $amount
+            ) {
+              name
+              amount
+            }
+          }`,
+  variables: null,
 }
 
 describe('Register twice', function () {
@@ -184,12 +302,6 @@ describe('Register twice', function () {
     })
 
     it('register user with short password', function (done) {
-      const signUpQueryWithShortPassword = Object.assign({}, signUpQuery)
-      signUpQueryWithShortPassword.variables = {
-        username: 'iHaveShortPassword',
-        email: 'iHaveShortPassword@test.com',
-        password: '123',
-      }
       chai
         .request(application)
         .post('/api')
@@ -218,12 +330,6 @@ describe('Register twice', function () {
     })
 
     it('user cannot login with wrong username', function (done) {
-      const signInWithWrongUsername = Object.assign({}, loginQueryUsername)
-      signInWithWrongUsername.variables = {
-        username: 'iHaveShortPassword',
-        email: 'iHaveShortPassword@test.com',
-        password: '12345',
-      }
       chai
         .request(application)
         .post('/api')
@@ -237,11 +343,6 @@ describe('Register twice', function () {
     })
 
     it('user cannot login with wrong password', function (done) {
-      const signInWithWrongPassword = Object.assign({}, loginQueryUsername)
-      signInWithWrongPassword.variables = {
-        username,
-        password: '12345',
-      }
       chai
         .request(application)
         .post('/api')
@@ -363,7 +464,10 @@ describe('Register twice', function () {
           res.body.should.be.an('object')
           res.body.should.have.property('data')
           res.body.data.should.have.property('funds')
-          assert.strictEqual(res.body.data.funds, 100)
+          assert.strictEqual(
+            res.body.data.funds,
+            addFundsQuery.variables.amount
+          )
 
           done()
         })
@@ -380,17 +484,16 @@ describe('Register twice', function () {
           res.body.should.be.an('object')
           res.body.should.have.property('data')
           res.body.data.should.have.property('balance')
-          assert.strictEqual(res.body.data.balance, 100)
+          assert.strictEqual(
+            res.body.data.balance,
+            addFundsQuery.variables.amount
+          )
 
           done()
         })
     })
 
     it('add negative funds to account', function (done) {
-      const addNegativeFundsQuery = Object.assign({}, addFundsQuery)
-      addNegativeFundsQuery.variables = {
-        amount: -1,
-      }
       chai
         .request(application)
         .post('/api')
@@ -420,10 +523,285 @@ describe('Register twice', function () {
           done()
         })
     })
+
+    it('get a list of my non existent stocks', function (done) {
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(getMyStocks)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.should.be.an('object')
+          res.body.should.have.property('data')
+          res.body.data.should.have.property('myStocks')
+          res.body.data.myStocks.should.be.an('array')
+          assert.strictEqual(res.body.data.myStocks.length, 0)
+
+          done()
+        })
+    })
+
+    it('get a list of stocks', function (done) {
+      chai
+        .request(application)
+        .post('/api')
+        .send(getStocks)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.should.be.an('object')
+          res.body.should.have.property('data')
+          res.body.data.should.have.property('stocks')
+          res.body.data.stocks.should.be.an('array')
+          stock = res.body.data.stocks[0].name
+
+          done()
+        })
+    })
+
+    it('get current prices', function (done) {
+      chai
+        .request(application)
+        .post('/api')
+        .send(getPriceOfStocks)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.should.be.an('object')
+          res.body.should.have.property('data')
+          res.body.data.priceNow.should.be.an('object')
+          res.body.data.should.have.property('priceNow')
+          res.body.data.priceNow.should.have.property('createdAt')
+          res.body.data.priceNow.should.have.property('updatedAt')
+          res.body.data.priceNow.should.have.property('history')
+          res.body.data.priceNow.history.should.be.an('array')
+
+          done()
+        })
+    })
+
+    it('get historic prices', function (done) {
+      chai
+        .request(application)
+        .post('/api')
+        .send(getPriceHistoryNoLimit)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.should.be.an('object')
+          res.body.should.have.property('data')
+          res.body.data.stockHistory.should.be.an('array')
+          res.body.data.should.have.property('stockHistory')
+          res.body.data.stockHistory[0].should.have.property('createdAt')
+          res.body.data.stockHistory[0].should.have.property('updatedAt')
+          res.body.data.stockHistory[0].should.have.property('history')
+          res.body.data.stockHistory[0].history.should.be.an('array')
+
+          done()
+        })
+    })
+
+    it('buy stock without token', function (done) {
+      const buyStockWithoutToken = Object.assign({}, buyStock)
+      buyStockWithoutToken.variables = {
+        stock,
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .send(buyStockWithoutToken)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.errors.should.be.an('array')
+
+          done(err)
+        })
+    })
+
+    it('buy stock with insufficient funds', function (done) {
+      const buyStockWithoutFunds = Object.assign({}, buyStock)
+      buyStockWithoutFunds.variables = {
+        stock,
+        amount: 10000,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(buyStockWithoutFunds)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.errors.should.be.an('array')
+          assert.strictEqual(res.body.errors[0].message, 'Insufficient funds')
+
+          done(err)
+        })
+    })
+
+    it('buy stock that does not exist', function (done) {
+      const buyStockThatDoesNotExist = Object.assign({}, buyStock)
+      buyStockThatDoesNotExist.variables = {
+        stock: 'kjasfkjlhsadlfkjdsalkjfhalkjdshfkljdsahflkjadshflkjadsh',
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(buyStockThatDoesNotExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.errors.should.be.an('array')
+          assert.strictEqual(res.body.errors[0].message, 'Stock does not exist')
+
+          done(err)
+        })
+    })
+
+    it('buy stock that does exist', function (done) {
+      const buyStockThatDoesExist = Object.assign({}, buyStock)
+      buyStockThatDoesExist.variables = {
+        stock,
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(buyStockThatDoesExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          // res.body.errors.should.be.an('array')
+          // assert.strictEqual(res.body.errors[0].message, 'Stock does not exist')
+          assert.strictEqual(res.body.data.buyStock.name, stock)
+          assert.strictEqual(res.body.data.buyStock.amount, 1)
+
+          done(err)
+        })
+    })
+
+    it('buy stock that does exist again', function (done) {
+      const buyStockThatDoesExist = Object.assign({}, buyStock)
+      buyStockThatDoesExist.variables = {
+        stock,
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(buyStockThatDoesExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          assert.strictEqual(res.body.data.buyStock.name, stock)
+          assert.strictEqual(res.body.data.buyStock.amount, 2)
+
+          done(err)
+        })
+    })
+
+    it('sell stock that does exist', function (done) {
+      const sellStockThatDoesExist = Object.assign({}, sellStock)
+      sellStockThatDoesExist.variables = {
+        stock,
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(sellStockThatDoesExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          assert.strictEqual(res.body.data.sellStock.name, stock)
+          assert.strictEqual(res.body.data.sellStock.amount, 1)
+
+          done(err)
+        })
+    })
+
+    it('sell too much stock that does exist again', function (done) {
+      const sellStockThatDoesExist = Object.assign({}, sellStock)
+      sellStockThatDoesExist.variables = {
+        stock,
+        amount: 999,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(sellStockThatDoesExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.errors.should.be.an('array')
+          assert.strictEqual(res.body.errors[0].message, 'Not enough stock')
+
+          done(err)
+        })
+    })
+
+    it('sell stock that does exist again', function (done) {
+      const sellStockThatDoesExist = Object.assign({}, sellStock)
+      sellStockThatDoesExist.variables = {
+        stock,
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(sellStockThatDoesExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          assert.strictEqual(res.body.data.sellStock.name, stock)
+          assert.strictEqual(res.body.data.sellStock.amount, 0)
+
+          done(err)
+        })
+    })
+
+    it('sell stock that is not owned', function (done) {
+      const sellStockThatDoesExist = Object.assign({}, sellStock)
+      sellStockThatDoesExist.variables = {
+        stock,
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(sellStockThatDoesExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.errors.should.be.an('array')
+          assert.strictEqual(res.body.errors[0].message, 'Stock not owned')
+
+          done(err)
+        })
+    })
+
+    it('sell stock that does not exist', function (done) {
+      const sellStockThatDoesNotExist = Object.assign({}, sellStock)
+      sellStockThatDoesNotExist.variables = {
+        stock: 'asdfadsfjkjasdfdsakfjadsgfs',
+        amount: 1,
+      }
+      chai
+        .request(application)
+        .post('/api')
+        .set('Authorization', token)
+        .send(sellStockThatDoesNotExist)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(200)
+          res.body.errors.should.be.an('array')
+          assert.strictEqual(res.body.errors[0].message, 'Stock does not exist')
+
+          done(err)
+        })
+    })
   })
 })
 
-after(async function (done) {
+after(function (done) {
   db.close()
   clearInterval(interval)
   done()
