@@ -29,12 +29,19 @@ module.exports = {
 
     return stockHistory
   },
-  stockHistory: async (parent, { limit = 0 }, { models }) => {
+  stockHistory: async (parent, { limit = 0, name }, { models }) => {
     const stockHistory = await models.StockHistory.find().limit(limit).sort({
       field: 'asc',
       _id: -1,
     })
 
-    return stockHistory
+    if (!name) return stockHistory
+
+    return stockHistory.map((stock) => ({
+      id: stock.id,
+      updatedAt: stock.updatedAt,
+      createdAt: stock.createdAt,
+      history: stock.history.filter((history) => history.name === name),
+    }))
   },
 }
