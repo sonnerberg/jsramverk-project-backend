@@ -36,12 +36,10 @@ module.exports = {
         owner: mongoose.Types.ObjectId(user._id),
       })
 
-      pubsub.publish('PERSON_ADDED', { personAdded: username })
+      pubsub.publish('PERSON_ADDED', { personAdded: { username, avatar } })
 
       return jwt.sign({ id: user._id }, process.env.JWT_SECRET)
     } catch (err) {
-      // console.log(err)
-
       throw new Error('Error creating account')
     }
   },
@@ -91,7 +89,9 @@ module.exports = {
 
     if (sum > account.balance) throw new ForbiddenError('Insufficient funds')
 
-    await account.updateOne({ balance: account.balance - sum })
+    const newAccountBalance = account.balance - sum
+
+    await account.updateOne({ balance: newAccountBalance })
 
     // Check if user already owns the stock about to be purchased
     const stockOwned = account.stocks.find((item) => item.name === stock)
@@ -103,7 +103,8 @@ module.exports = {
         $push: { stocks: newStock },
       })
 
-      return newStock
+      // TODO: extend the newStock object, add balance
+      return { name: stock, amount, balance: newAccountBalance }
     }
 
     const newAmount = stockOwned.amount + amount
@@ -113,7 +114,11 @@ module.exports = {
       { $set: { 'stocks.$.amount': newAmount } }
     )
 
-    return { name: stockOwned.name, amount: newAmount }
+    return {
+      name: stockOwned.name,
+      amount: newAmount,
+      balance: newAccountBalance,
+    }
   },
   sellStock: async (parent, { stock, amount }, { models, user }) => {
     // Check that the stock exists
@@ -136,7 +141,9 @@ module.exports = {
 
     const sum = amount * price
 
-    await account.updateOne({ balance: account.balance + sum })
+    const newAccountBalance = account.balance + sum
+
+    await account.updateOne({ balance: newAccountBalance })
 
     const newAmount = stockOwned.amount - amount
 
@@ -145,7 +152,11 @@ module.exports = {
       doc.stocks.pull(stockOwned._id)
       await doc.save()
 
-      return { name: stockOwned.name, amount: newAmount }
+      return {
+        name: stockOwned.name,
+        amount: newAmount,
+        balance: newAccountBalance,
+      }
     }
 
     await models.Account.findOneAndUpdate(
@@ -153,6 +164,10 @@ module.exports = {
       { $set: { 'stocks.$.amount': newAmount } }
     )
 
-    return { name: stockOwned.name, amount: newAmount }
+    return {
+      name: stockOwned.name,
+      amount: newAmount,
+      balance: newAccountBalance,
+    }
   },
 }
