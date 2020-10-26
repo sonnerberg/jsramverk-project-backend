@@ -48,6 +48,13 @@ module.exports = gql`
     amount: Float!
   }
 
+  type OwnedStockAndBalance {
+    id: ID!
+    name: String!
+    amount: Float!
+    balance: Float!
+  }
+
   type CurrentPriceStock {
     id: ID!
     name: String!
@@ -55,16 +62,21 @@ module.exports = gql`
     createdAt: DateTime!
   }
 
+  type UsernameAvatar {
+    username: String!
+    avatar: String!
+  }
+
   type Mutation {
     signUp(username: String!, email: String!, password: String!): String!
     signIn(username: String, email: String, password: String!): String!
     addFunds(amount: Int!): Float!
-    buyStock(stock: String!, amount: Float!): OwnedStock!
-    sellStock(stock: String!, amount: Float!): OwnedStock!
+    buyStock(stock: String!, amount: Float!): OwnedStockAndBalance!
+    sellStock(stock: String!, amount: Float!): OwnedStockAndBalance!
   }
 
   type Subscription {
-    personAdded: String!
+    personAdded: UsernameAvatar!
     stocksUpdated: [Stock!]!
   }
 `
