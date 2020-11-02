@@ -10,7 +10,8 @@
     "pretest": "bash bash_scripts/reset_test_db.bash && npm run seed:test",
     "reset:production": "bash bash_scripts/reset_production_db.bash && npm run seed",
     "seed": "node src/util/seed/index.js",
-    "seed:test": "NODE_ENV=test node src/util/seed/index.js"
+    "seed:test": "NODE_ENV=test node src/util/seed/index.js",
+    "start:test": "npm run seed:test && NODE_ENV=test node src/index.js"
   },
   "keywords": [
     "javascript",
