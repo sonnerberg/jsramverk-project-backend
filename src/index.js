@@ -36,6 +36,8 @@ const getUser = (token) => {
   }
 }
 
+const intervalLength = process.env.NODE_ENV === 'test' ? 10 : 5000
+
 const interval = setInterval(async () => {
   const cakes = await models.Stock.find({})
   cakes.map((cake) => {
@@ -54,7 +56,7 @@ const interval = setInterval(async () => {
   await models.StockHistory.create({ history: history })
 
   pubsub.publish('STOCKS_UPDATED', { stocksUpdated: cakes })
-}, 5000)
+}, intervalLength)
 
 const server = new ApolloServer({
   typeDefs,
