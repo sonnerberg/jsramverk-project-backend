@@ -36,7 +36,7 @@ const getUser = (token) => {
   }
 }
 
-const intervalLength = process.env.NODE_ENV === 'test' ? 10 : 5000
+const intervalLength = process.env.NODE_ENV === 'test' ? 100 : 5000
 
 const interval = setInterval(async () => {
   const cakes = await models.Stock.find({})
