@@ -16,7 +16,7 @@ const pubsub = new PubSub()
 
 const stock = require('./util/stock')
 
-const port = process.env.PORT || 8888
+const port = process.env.BACKEND_PORT || 8888
 const DB_HOST =
   process.env.NODE_ENV === 'test' ? process.env.TEST_DB : process.env.DB_HOST
 
