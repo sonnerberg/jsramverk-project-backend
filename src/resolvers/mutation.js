@@ -1,3 +1,5 @@
+const path = require('path')
+require('dotenv').config()
 // eslint-disable-next-line no-unused-vars
 const colors = require('colors')
 const bcrypt = require('bcrypt')
@@ -6,7 +8,7 @@ const {
   AuthenticationError /* ForbiddenError */,
   ForbiddenError,
 } = require('apollo-server-express')
-require('dotenv').config()
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') })
 
 const gravatar = require('../util/gravatar')
 const mongoose = require('mongoose')

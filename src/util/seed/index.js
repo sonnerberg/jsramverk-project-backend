@@ -1,7 +1,8 @@
+const path = require('path')
 const models = require('../../models')
 const seedStocks = require('./stocks')
 const db = require('../../db')
-require('dotenv').config()
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') })
 
 const DB_HOST =
   process.env.NODE_ENV === 'test' ? process.env.TEST_DB : process.env.DB_HOST
