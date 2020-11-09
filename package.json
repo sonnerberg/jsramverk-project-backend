@@ -1,6 +1,6 @@
 {
   "name": "jsramverk-project-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "This is be the backend for the project during the course jsramverk (https://jsramverk.se/).",
   "main": "src/index.js",
   "scripts": {
