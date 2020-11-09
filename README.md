@@ -25,6 +25,9 @@ As both of my main sources for information about GraphQL are using
 [Apollo GraphQL | Apollo Data Graph Platform— unify APIs, microservices, and databases into a data graph that you can query with GraphQL](https://www.apollographql.com/)
 , this is what I decided to use for the GraphQL implementation in my project.
 
+The apollo server is also responsible for the real time stock prices in my application by using
+GraphQL subscriptions and WebSockets.
+
 ### [bcrypt - npm](https://www.npmjs.com/package/bcrypt)
 
 `bcrypt` is described at [jsramverk.se](https://jsramverk.se/), [Full stack open 2020](https://fullstackopen.com/en)
@@ -106,6 +109,35 @@ For testing I am using `mocha` and `chai`. These tools were described in [jsramv
 and I knew that I would be able to get code coverage by using these.
 
 I initially tried to use another testing library which did not play well with `mongoose`.
+
+## Real time
+
+To implement the real time aspect of my application I used the built in support in Apollo
+for GraphQL subscriptions.
+
+This allowed me to use a single backend server for all the logic in the application.
+
+The backend is sending new stock prices every 5 seconds and the stock prices are
+sent to the frontend client to be plotted on graphs.
+
+I think that it works well and I am also using the subscription to let clients know of
+new users that are registered to the application.
+
+## Continous Integration (CI)
+
+For CI I have used [Travis CI](https://travis-ci.org/) and [Scrutinizer CI](https://scrutinizer-ci.com/).
+
+By the use of CI I have more trust in that my application code will run and function the was that I intend.
+
+As my code coverage is quite high for both the frontend and the backend the CI services are able to handle most
+of my application logic.
+
+I did not figure out how to test the backend WebSockets but the information sent over the WebSocket is tested
+to be recieved in the frontend.
+
+My code quality for the backend is quite poor and this is because my tests recieved a very low score. I think that
+this is a correct evaluation of my code and there is most likely room for improvement in making the test code less
+complex. However, as the tests are working as I expect I do not see the need for improving the code at this moment in time.
 
 ## Attribution
 
